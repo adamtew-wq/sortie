@@ -1,0 +1,11 @@
+# Ralph Progress Log
+
+This file is appended to by each Ralph iteration. The agent reads it at the
+start of each loop to understand prior state and avoid repeating work.
+
+Format per entry:
+  [YYYY-MM-DD HH:MM] Issue #N — <short outcome>
+
+---
+
+(no iterations yet)
