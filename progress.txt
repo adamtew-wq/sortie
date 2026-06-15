@@ -8,4 +8,4 @@ Format per entry:
 
 ---
 
-(no iterations yet)
+[2026-06-15 22:35] Issue #2 — Framework spec authored (7 files in framework/): session-schema.json, exercise-library.json (77 exercises, 60 home-friendly, all 5 modalities + all 7 movement patterns), session-templates.json (5 weights spine slots + run/swim/bike/conditioning archetypes, 4–6 week accessory rotation), progression-rules.md (+2.5 kg/2-fail-stall/3-stall-90%-deload + cardio + readiness rules), load-balancing.md (per-modality weekly caps, hard/easy spacing, training-load formula, readiness multipliers), injury-routing.md (knee/shoulder/lower-back/hip/ankle substitution map), rehab-protocols.json (3 placeholder protocols). Added Node test suite (no installs needed): 16 tests covering structural acceptance criteria + 5 sample sessions validated against schema, equipment profiles, and niggle routing. All green. Commit d08e086 pushed to main; GitHub closed issue #2 via Closes #2.
