@@ -1,0 +1,10 @@
+{
+  "name": "sortie",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sortie — written framework + tests. App is no-build-step static; this package.json exists only to run the test suite.",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\""
+  }
+}

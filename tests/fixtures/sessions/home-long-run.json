@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "date": "2026-06-19",
+    "modality": "run",
+    "sessionType": "long",
+    "duration": 75,
+    "equipmentProfile": "Home",
+    "readiness": 4,
+    "eventOverlay": null
+  },
+  "rationale": "Weekly long run — aerobic base. Home profile, full readiness, no niggles. Cardio cap and hard/easy spacing both OK.",
+  "warmup": [
+    { "exercise": "Easy run", "duration": "8 min", "cue": "Build pace gradually for the first kilometre." }
+  ],
+  "main": [
+    { "exercise": "Long run", "duration": "60 min", "load": "Zone 2", "cue": "Aerobic only — finish feeling you could go further." }
+  ],
+  "cooldown": [
+    { "exercise": "Easy run", "duration": "5 min", "cue": "Settle the breath, drop the pace." },
+    { "exercise": "90/90 hip switch", "sets": 2, "reps": 8, "cue": "Sit tall, rotate the hips side to side." }
+  ]
+}

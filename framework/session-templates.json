@@ -1,0 +1,286 @@
+{
+  "$comment": "Slow-rotating spine templates (weights) and cardio archetypes. Spine lifts persist; accessories rotate every 4–6 weeks (see rotation.accessoryWeeksMin/Max). Every name referenced here must exist in framework/exercise-library.json — for Home profiles the engine substitutes per framework/injury-routing.md and the equipment filter (Goblet squat ← Back squat, DB bench press ← Bench press, etc.).",
+  "rotation": {
+    "accessoryWeeksMin": 4,
+    "accessoryWeeksMax": 6,
+    "spinePersists": true,
+    "notes": "Spine lifts stay until a deload triggers (see progression-rules.md); accessories rotate on the 4–6 week cadence to keep stimulus varied without losing spine progression."
+  },
+  "weights": {
+    "upper-push": {
+      "spine": ["Bench press", "Overhead press"],
+      "accessories": [
+        "Dumbbell shoulder press",
+        "Dumbbell floor press",
+        "Push-up",
+        "Diamond push-up",
+        "Pike push-up",
+        "Dips",
+        "Band pull-apart",
+        "Single-arm dumbbell row",
+        "Plank",
+        "Suitcase carry"
+      ]
+    },
+    "upper-pull": {
+      "spine": ["Weighted pull-up", "Barbell row"],
+      "accessories": [
+        "Pull-up",
+        "Chin-up",
+        "Inverted row",
+        "Dumbbell row",
+        "Single-arm dumbbell row",
+        "Band pull-apart",
+        "Face pull",
+        "Hanging knee raise",
+        "Farmer's carry"
+      ]
+    },
+    "lower": {
+      "spine": ["Back squat", "Conventional deadlift"],
+      "accessories": [
+        "Romanian deadlift",
+        "Bulgarian split squat",
+        "Reverse lunge",
+        "Walking lunge",
+        "Dumbbell step-up",
+        "Hip thrust",
+        "Single-leg Romanian deadlift",
+        "Goblet squat",
+        "Farmer's carry",
+        "Plank"
+      ]
+    },
+    "full-body": {
+      "spine": ["Front squat", "Bench press"],
+      "accessories": [
+        "Kettlebell swing",
+        "Pull-up",
+        "Dumbbell row",
+        "Overhead carry",
+        "Front-rack carry",
+        "Goblet squat",
+        "Push-up",
+        "Hanging knee raise",
+        "Dead bug"
+      ]
+    },
+    "conditioning": {
+      "spine": ["Kettlebell swing", "Goblet squat", "Push-up"],
+      "accessories": [
+        "Burpee",
+        "Mountain climber",
+        "Jump rope",
+        "Bear crawl",
+        "Kettlebell snatch",
+        "Kettlebell clean",
+        "Dumbbell thruster",
+        "Farmer's carry"
+      ]
+    }
+  },
+  "run": [
+    {
+      "name": "easy",
+      "blocks": [
+        { "exercise": "Easy run", "phase": "main" }
+      ],
+      "defaultDuration": 40
+    },
+    {
+      "name": "long",
+      "blocks": [
+        { "exercise": "Long run", "phase": "main" }
+      ],
+      "defaultDuration": 75
+    },
+    {
+      "name": "tempo",
+      "blocks": [
+        { "exercise": "Easy run", "phase": "warmup" },
+        { "exercise": "Tempo run", "phase": "main" },
+        { "exercise": "Easy run", "phase": "cooldown" }
+      ],
+      "defaultDuration": 50
+    },
+    {
+      "name": "intervals",
+      "blocks": [
+        { "exercise": "Easy run", "phase": "warmup" },
+        { "exercise": "Interval run", "phase": "main" },
+        { "exercise": "Easy run", "phase": "cooldown" }
+      ],
+      "defaultDuration": 45
+    },
+    {
+      "name": "hill-repeats",
+      "blocks": [
+        { "exercise": "Easy run", "phase": "warmup" },
+        { "exercise": "Hill repeats", "phase": "main" },
+        { "exercise": "Easy run", "phase": "cooldown" }
+      ],
+      "defaultDuration": 45
+    },
+    {
+      "name": "treadmill-steady",
+      "blocks": [
+        { "exercise": "Treadmill steady", "phase": "main" }
+      ],
+      "defaultDuration": 40
+    },
+    {
+      "name": "treadmill-intervals",
+      "blocks": [
+        { "exercise": "Treadmill intervals", "phase": "main" }
+      ],
+      "defaultDuration": 45
+    }
+  ],
+  "swim": [
+    {
+      "name": "easy",
+      "blocks": [
+        { "exercise": "Easy swim", "phase": "main" }
+      ],
+      "defaultDuration": 30
+    },
+    {
+      "name": "threshold",
+      "blocks": [
+        { "exercise": "Easy swim", "phase": "warmup" },
+        { "exercise": "Threshold swim", "phase": "main" },
+        { "exercise": "Easy swim", "phase": "cooldown" }
+      ],
+      "defaultDuration": 45
+    },
+    {
+      "name": "sprint",
+      "blocks": [
+        { "exercise": "Easy swim", "phase": "warmup" },
+        { "exercise": "Sprint swim set", "phase": "main" },
+        { "exercise": "Easy swim", "phase": "cooldown" }
+      ],
+      "defaultDuration": 40
+    },
+    {
+      "name": "technique",
+      "blocks": [
+        { "exercise": "Easy swim", "phase": "warmup" },
+        { "exercise": "Pull set", "phase": "main" },
+        { "exercise": "Kick set", "phase": "main" },
+        { "exercise": "Easy swim", "phase": "cooldown" }
+      ],
+      "defaultDuration": 45
+    },
+    {
+      "name": "open-water",
+      "blocks": [
+        { "exercise": "Open water swim", "phase": "main" }
+      ],
+      "defaultDuration": 45
+    }
+  ],
+  "bike": [
+    {
+      "name": "easy",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "main" }
+      ],
+      "defaultDuration": 60
+    },
+    {
+      "name": "tempo",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "warmup" },
+        { "exercise": "Tempo bike", "phase": "main" },
+        { "exercise": "Easy bike", "phase": "cooldown" }
+      ],
+      "defaultDuration": 60
+    },
+    {
+      "name": "sweet-spot",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "warmup" },
+        { "exercise": "Sweet-spot intervals", "phase": "main" },
+        { "exercise": "Easy bike", "phase": "cooldown" }
+      ],
+      "defaultDuration": 75
+    },
+    {
+      "name": "vo2",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "warmup" },
+        { "exercise": "VO2 bike intervals", "phase": "main" },
+        { "exercise": "Easy bike", "phase": "cooldown" }
+      ],
+      "defaultDuration": 60
+    },
+    {
+      "name": "long",
+      "blocks": [
+        { "exercise": "Long ride", "phase": "main" }
+      ],
+      "defaultDuration": 120
+    },
+    {
+      "name": "hill-repeats",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "warmup" },
+        { "exercise": "Bike hill repeats", "phase": "main" },
+        { "exercise": "Easy bike", "phase": "cooldown" }
+      ],
+      "defaultDuration": 60
+    }
+  ],
+  "conditioning": [
+    {
+      "name": "kb-circuit",
+      "blocks": [
+        { "exercise": "Kettlebell swing", "phase": "main" },
+        { "exercise": "Goblet squat", "phase": "main" },
+        { "exercise": "Push-up", "phase": "main" }
+      ],
+      "defaultDuration": 25
+    },
+    {
+      "name": "amrap-bodyweight",
+      "blocks": [
+        { "exercise": "Burpee", "phase": "main" },
+        { "exercise": "Pull-up", "phase": "main" },
+        { "exercise": "Push-up", "phase": "main" }
+      ],
+      "defaultDuration": 20
+    },
+    {
+      "name": "emom-swings",
+      "blocks": [
+        { "exercise": "Kettlebell swing", "phase": "main" }
+      ],
+      "defaultDuration": 15
+    },
+    {
+      "name": "rower-intervals",
+      "blocks": [
+        { "exercise": "Easy bike", "phase": "warmup" },
+        { "exercise": "Rower intervals", "phase": "main" }
+      ],
+      "defaultDuration": 30
+    },
+    {
+      "name": "ski-erg-intervals",
+      "blocks": [
+        { "exercise": "Ski-erg intervals", "phase": "main" }
+      ],
+      "defaultDuration": 25
+    },
+    {
+      "name": "carry-medley",
+      "blocks": [
+        { "exercise": "Farmer's carry", "phase": "main" },
+        { "exercise": "Overhead carry", "phase": "main" },
+        { "exercise": "Front-rack carry", "phase": "main" }
+      ],
+      "defaultDuration": 20
+    }
+  ]
+}

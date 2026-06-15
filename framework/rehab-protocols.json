@@ -1,0 +1,107 @@
+{
+  "$comment": "Placeholder rehab protocols. Real protocols come from the user's clinician via the onboarding slice and are stored in data/rehab-protocols.json (which overrides these by id). The engine looks up by `id`; if the user's data has a matching id, that wins.",
+  "protocols": [
+    {
+      "id": "knee-basic",
+      "injury": "Knee — generic placeholder",
+      "placeholder": true,
+      "notes": "Default knee battery: hip and glute activation, controlled isometrics, gentle quad loading. Replace with clinician-prescribed protocol when available.",
+      "exercises": [
+        {
+          "name": "Glute bridge",
+          "sets": 2,
+          "reps": 12,
+          "cue": "Heels close, ribs down, squeeze glutes at the top."
+        },
+        {
+          "name": "Wall sit",
+          "sets": 2,
+          "duration": "30 s",
+          "cue": "Thighs parallel, hold the breath calm."
+        },
+        {
+          "name": "Terminal knee extension",
+          "sets": 2,
+          "reps": 15,
+          "cue": "Band behind the knee, lock the knee straight, slow return."
+        },
+        {
+          "name": "Banded clam",
+          "sets": 2,
+          "reps": 15,
+          "cue": "Side-lying, knees apart against the band, no hip roll."
+        }
+      ]
+    },
+    {
+      "id": "shoulder-basic",
+      "injury": "Shoulder — generic placeholder",
+      "placeholder": true,
+      "notes": "Default shoulder battery: scapular control, rotator-cuff activation, postural cues. Replace with clinician-prescribed protocol when available.",
+      "exercises": [
+        {
+          "name": "Scapular pull-up",
+          "sets": 2,
+          "reps": 8,
+          "cue": "Dead hang, depress and retract the scapulae only — no elbow bend."
+        },
+        {
+          "name": "Band external rotation",
+          "sets": 2,
+          "reps": 12,
+          "cue": "Elbow tucked to ribs, rotate slowly, control the return."
+        },
+        {
+          "name": "Wall slide",
+          "sets": 2,
+          "reps": 10,
+          "cue": "Forearms on the wall, slide up keeping contact throughout."
+        },
+        {
+          "name": "Prone Y-T-W",
+          "sets": 2,
+          "reps": 8,
+          "cue": "Thumbs up, lift from the mid-back, hold each rep briefly."
+        }
+      ]
+    },
+    {
+      "id": "lower-back-basic",
+      "injury": "Lower back — generic placeholder",
+      "placeholder": true,
+      "notes": "Default lower-back battery: McGill-style anti-extension and anti-rotation, hip mobility. Replace with clinician-prescribed protocol when available.",
+      "exercises": [
+        {
+          "name": "Dead bug",
+          "sets": 2,
+          "reps": 8,
+          "cue": "Low back glued to the floor, slow opposite limbs."
+        },
+        {
+          "name": "Bird dog",
+          "sets": 2,
+          "reps": 8,
+          "cue": "Reach long, hips square, no rotation."
+        },
+        {
+          "name": "Side plank",
+          "sets": 2,
+          "duration": "30 s",
+          "cue": "Hips stacked, top hip high, breathe."
+        },
+        {
+          "name": "Cat-cow",
+          "sets": 1,
+          "reps": 10,
+          "cue": "Slow, paired with the breath — segment by segment."
+        },
+        {
+          "name": "90/90 hip switch",
+          "sets": 2,
+          "reps": 8,
+          "cue": "Sit tall, rotate the hips side to side, both knees stay grounded."
+        }
+      ]
+    }
+  ]
+}

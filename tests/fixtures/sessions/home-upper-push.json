@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "date": "2026-06-15",
+    "modality": "weights",
+    "sessionType": "upper-push",
+    "duration": 50,
+    "equipmentProfile": "Home",
+    "readiness": 4,
+    "eventOverlay": null
+  },
+  "rationale": "Upper-push spine slot, full readiness, Home profile — barbell spine lifts substituted with dumbbell variants.",
+  "warmup": [
+    { "exercise": "Band pull-apart", "sets": 2, "reps": 15, "cue": "Wake up the mid-back before pressing." },
+    { "exercise": "Wall slide", "sets": 2, "reps": 10, "cue": "Forearms on the wall, slide up keeping contact throughout." },
+    { "exercise": "Push-up", "sets": 1, "reps": 8, "cue": "Smooth, controlled — primer set only." }
+  ],
+  "main": [
+    { "exercise": "Dumbbell bench press", "sets": 4, "reps": 8, "load": "RPE 7", "rest": "120s", "cue": "Control the descent, drive in a slight arc." },
+    { "exercise": "Dumbbell shoulder press", "sets": 4, "reps": 8, "load": "RPE 7", "rest": "120s", "cue": "Ribs down, press to lockout above the crown." },
+    { "exercise": "Dips", "sets": 3, "reps": 10, "load": "bodyweight", "rest": "90s", "cue": "Shoulders down, lean slightly forward for chest emphasis." },
+    { "exercise": "Single-arm dumbbell row", "sets": 3, "reps": 10, "load": "RPE 7", "rest": "90s", "cue": "Row tight to the ribs, long spine." }
+  ],
+  "cooldown": [
+    { "exercise": "Hollow hold", "sets": 3, "duration": "30 s", "cue": "Low back pressed down, ribs tucked." },
+    { "exercise": "Cat-cow", "sets": 1, "reps": 10, "cue": "Slow, paired with the breath." }
+  ]
+}

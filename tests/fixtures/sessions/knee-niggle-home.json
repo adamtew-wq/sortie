@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "date": "2026-06-17",
+    "modality": "weights",
+    "sessionType": "upper-push",
+    "duration": 45,
+    "equipmentProfile": "Home",
+    "readiness": 4,
+    "eventOverlay": null
+  },
+  "rationale": "Active knee niggle excludes squat / hinge patterns; routed to upper-push with knee-basic rehab woven into warm-up.",
+  "warmup": [
+    { "exercise": "Glute bridge", "sets": 2, "reps": 12, "cue": "Heels close, squeeze glutes at the top.", "rehab": true },
+    { "exercise": "Banded clam", "sets": 2, "reps": 15, "cue": "Knees apart against the band, no hip roll.", "rehab": true },
+    { "exercise": "Terminal knee extension", "sets": 2, "reps": 15, "cue": "Lock the knee straight, slow return.", "rehab": true },
+    { "exercise": "Band pull-apart", "sets": 2, "reps": 15, "cue": "Wake up the mid-back before pressing." }
+  ],
+  "main": [
+    { "exercise": "Dumbbell bench press", "sets": 4, "reps": 8, "load": "RPE 7", "rest": "120s", "cue": "Control the descent." },
+    { "exercise": "Dumbbell shoulder press", "sets": 3, "reps": 10, "load": "RPE 7", "rest": "120s", "cue": "Ribs down, lockout above the crown." },
+    { "exercise": "Single-arm dumbbell row", "sets": 3, "reps": 10, "load": "RPE 7", "rest": "90s", "cue": "Row tight to the ribs." },
+    { "exercise": "Push-up", "sets": 3, "reps": 12, "load": "bodyweight", "rest": "60s", "cue": "Plank line, elbows ~45°." }
+  ],
+  "cooldown": [
+    { "exercise": "Wall sit", "sets": 2, "duration": "30 s", "cue": "Thighs parallel, calm breath.", "rehab": true },
+    { "exercise": "Side plank", "sets": 2, "duration": "30 s", "cue": "Hips stacked, top hip high." }
+  ]
+}

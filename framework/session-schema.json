@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sortie Session",
+  "description": "The canonical shape of a single training Session as emitted by the engine or Claude Code. Must match framework/CONTEXT.md terminology exactly. The Session is what the user logs at the end of the day; the log extension adds an `actuals` payload to each main-work block.",
+  "type": "object",
+  "required": ["warmup", "main", "cooldown", "metadata", "rationale"],
+  "additionalProperties": false,
+  "properties": {
+    "warmup": {
+      "type": "array",
+      "description": "Ordered warm-up blocks. Rehab work for active niggles is woven in here when relevant.",
+      "items": { "$ref": "#/definitions/block" }
+    },
+    "main": {
+      "type": "array",
+      "description": "Ordered main-work blocks. For weights sessions this is spine + accessories; for cardio it is the intervals/steady block.",
+      "items": { "$ref": "#/definitions/block" }
+    },
+    "cooldown": {
+      "type": "array",
+      "description": "Ordered cooldown blocks (mobility, breathing, optional rehab).",
+      "items": { "$ref": "#/definitions/block" }
+    },
+    "rationale": {
+      "type": "string",
+      "description": "One-line plain-English explanation for why this Session was chosen today (modality balance, event taper, readiness, etc.)."
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["date", "modality", "sessionType", "duration", "equipmentProfile", "readiness"],
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "ISO date (YYYY-MM-DD) the Session is prescribed for."
+        },
+        "modality": {
+          "type": "string",
+          "enum": ["weights", "run", "swim", "bike", "conditioning"],
+          "description": "Modality (per CONTEXT.md). Exactly one per Session."
+        },
+        "sessionType": {
+          "type": "string",
+          "description": "The template slot, e.g. upper-push, upper-pull, lower, full-body, conditioning, steady, intervals, threshold, easy, long."
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 5,
+          "description": "Total session duration in minutes (warm-up + main + cooldown)."
+        },
+        "equipmentProfile": {
+          "type": "string",
+          "description": "Equipment profile key the Session was generated against (e.g. Home, Military, or an ad-hoc label)."
+        },
+        "readiness": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Readiness score (1–5) derived from today's Check-in. Scales volume/intensity."
+        },
+        "eventOverlay": {
+          "type": ["string", "null"],
+          "description": "Name of the active Event overlay biasing this Session, or null."
+        }
+      }
+    }
+  },
+  "definitions": {
+    "block": {
+      "type": "object",
+      "required": ["exercise", "cue"],
+      "additionalProperties": false,
+      "properties": {
+        "exercise": {
+          "type": "string",
+          "description": "Name of an exercise that exists in framework/exercise-library.json."
+        },
+        "sets": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of working sets (omit for steady cardio)."
+        },
+        "reps": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "string" }
+          ],
+          "description": "Reps per set. Integer for fixed reps; string for ranges or AMRAP (e.g. \"5-8\", \"AMRAP\")."
+        },
+        "duration": {
+          "type": "string",
+          "description": "Duration for time-based work (e.g. \"30 min\", \"4x4 min\", \"500 m\")."
+        },
+        "load": {
+          "oneOf": [
+            { "type": "number", "minimum": 0 },
+            { "type": "string" }
+          ],
+          "description": "Working load in kg for weights, or a descriptor (e.g. \"bodyweight\", \"RPE 7\", \"Zone 2\")."
+        },
+        "cue": {
+          "type": "string",
+          "description": "One-line execution cue copied from the exercise library or contextualised."
+        },
+        "rest": {
+          "type": "string",
+          "description": "Inter-set rest (e.g. \"90s\", \"3 min\")."
+        },
+        "rehab": {
+          "type": "boolean",
+          "description": "True if this block was woven in because a Rehab protocol is active."
+        }
+      }
+    }
+  }
+}

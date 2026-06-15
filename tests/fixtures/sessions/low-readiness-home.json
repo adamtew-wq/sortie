@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "date": "2026-06-16",
+    "modality": "weights",
+    "sessionType": "upper-push",
+    "duration": 30,
+    "equipmentProfile": "Home",
+    "readiness": 2,
+    "eventOverlay": null
+  },
+  "rationale": "Readiness 2 — volume cut to 70%, intensity to 90%. Accessory dropped, conditioning replaced with mobility.",
+  "warmup": [
+    { "exercise": "Band pull-apart", "sets": 2, "reps": 12, "cue": "Gentle activation only." },
+    { "exercise": "Wall slide", "sets": 2, "reps": 8, "cue": "Forearms stay on the wall." }
+  ],
+  "main": [
+    { "exercise": "Dumbbell bench press", "sets": 3, "reps": 8, "load": "RPE 6", "rest": "120s", "cue": "Stop a rep shy of failure today." },
+    { "exercise": "Dumbbell shoulder press", "sets": 3, "reps": 8, "load": "RPE 6", "rest": "120s", "cue": "Light and clean." },
+    { "exercise": "Single-arm dumbbell row", "sets": 2, "reps": 10, "load": "RPE 6", "rest": "90s", "cue": "Quality reps, no grinding." }
+  ],
+  "cooldown": [
+    { "exercise": "Cat-cow", "sets": 1, "reps": 10, "cue": "Slow, paired with the breath." },
+    { "exercise": "Dead bug", "sets": 2, "reps": 8, "cue": "Low back glued to the floor." }
+  ]
+}

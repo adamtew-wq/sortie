@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "date": "2026-06-18",
+    "modality": "weights",
+    "sessionType": "lower",
+    "duration": 65,
+    "equipmentProfile": "Military",
+    "readiness": 5,
+    "eventOverlay": null
+  },
+  "rationale": "Lower spine slot, Military profile, full readiness — barbell squat + deadlift spine, glute and core accessories.",
+  "warmup": [
+    { "exercise": "Glute bridge", "sets": 2, "reps": 12, "cue": "Squeeze glutes at the top." },
+    { "exercise": "Bird dog", "sets": 2, "reps": 8, "cue": "Reach long, hips square." },
+    { "exercise": "Goblet squat", "sets": 2, "reps": 8, "load": "light", "cue": "Pattern primer, full depth." }
+  ],
+  "main": [
+    { "exercise": "Back squat", "sets": 4, "reps": 5, "load": 100, "rest": "180s", "cue": "Brace, sit between the hips, knees track toes." },
+    { "exercise": "Conventional deadlift", "sets": 3, "reps": 5, "load": 130, "rest": "180s", "cue": "Bar over mid-foot, lats tight, push the floor away." },
+    { "exercise": "Hip thrust", "sets": 3, "reps": 10, "load": 80, "rest": "90s", "cue": "Ribs down, full lockout." },
+    { "exercise": "Farmer's carry", "sets": 3, "duration": "40 m", "load": 32, "rest": "60s", "cue": "Tall posture, deliberate steps." }
+  ],
+  "cooldown": [
+    { "exercise": "Plank", "sets": 3, "duration": "45 s", "cue": "Straight line ear-to-ankle." },
+    { "exercise": "Cat-cow", "sets": 1, "reps": 10, "cue": "Slow, with the breath." }
+  ]
+}
