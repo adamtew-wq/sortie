@@ -68,3 +68,177 @@ button, a.button {
   text-transform: uppercase;
   color: var(--muted);
 }
+
+/* --- Daily-loop UI (issue #6) ---------------------------------------- */
+
+#app { justify-content: flex-start; }
+
+.checkin .group,
+.checkin fieldset.group {
+  margin: 16px 0;
+  border: 0;
+  padding: 0;
+}
+
+.checkin legend,
+.checkin h2 {
+  font-size: 15px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.row { display: flex; gap: 8px; flex-wrap: nowrap; }
+.row.wrap { flex-wrap: wrap; }
+
+button.chip {
+  flex: 1 1 0;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid #25252c;
+  border-radius: 10px;
+  padding: 12px 8px;
+  min-height: 48px;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+button.chip[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.hint { font-size: 14px; color: var(--muted); margin: 4px 0 12px; }
+
+.primary,
+button.primary {
+  width: 100%;
+  margin-top: 16px;
+  font-size: 18px;
+}
+
+.go { margin-top: 24px; }
+
+/* Suggestion screen */
+.s-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+}
+
+.modality-badge {
+  background: var(--accent);
+  color: var(--bg);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.duration, .location {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.rationale {
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+  color: var(--text);
+  margin: 12px 0 16px;
+  font-size: 15px;
+}
+
+.suggestion details,
+.suggestion section.main {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 8px 0;
+}
+
+.suggestion summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.suggestion h2 {
+  margin: 4px 0 8px;
+  font-size: 17px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+ul.blocks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li.block {
+  padding: 10px 0;
+  border-top: 1px solid #25252c;
+}
+li.block:first-child { border-top: 0; }
+
+li.block.rehab .b-name { color: var(--accent); }
+
+.b-name { font-weight: 600; font-size: 16px; }
+.b-meta { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.b-cue { font-size: 14px; margin-top: 4px; color: var(--text); }
+
+.tag {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.overrides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.overrides button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid #25252c;
+  font-size: 14px;
+  padding: 12px 10px;
+  min-height: 48px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.picker {
+  background: var(--surface);
+  padding: 12px;
+  border-radius: 10px;
+  margin: 8px 0;
+}
+
+.start { margin-top: 20px; }
+
+/* Logging placeholder */
+.logging { text-align: left; }
+.logging button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid #25252c;
+}

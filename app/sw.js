@@ -2,14 +2,25 @@
 // clients flush stale assets on activate. Static shell = cache-first;
 // GitHub API = network-first so logged data stays fresh.
 
-const SHELL_CACHE = 'sortie-shell-v1';
+const SHELL_CACHE = 'sortie-shell-v2';
 const SHELL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './style.css',
   './app.js',
+  './ui/state.js',
+  './engine/index.js',
   './icons/icon.svg',
+  '../framework/exercise-library.json',
+  '../framework/session-templates.json',
+  '../framework/session-schema.json',
+  '../framework/rehab-protocols.json',
+  '../data/equipment.json',
+  '../data/baselines.json',
+  '../data/attributes.json',
+  '../data/events.json',
+  '../data/niggles.json',
 ];
 
 self.addEventListener('install', (event) => {
