@@ -1,0 +1,61 @@
+{
+  "$comment": "PLACEHOLDER DATA (issue #3 is HITL). These are sensible defaults so the engine and UI can be built and tested end-to-end. REPLACE with your real Home and Military gym inventories. Every `available` key must be one of framework/exercise-library.json equipmentKeys.",
+  "placeholder": true,
+  "profiles": {
+    "Home": {
+      "label": "Home gym",
+      "available": [
+        "bodyweight", "barbell", "rack", "plates", "bench", "pull-up-bar",
+        "dumbbells", "kettlebell", "resistance-band", "mat", "jump-rope",
+        "foam-roller", "bike", "open-road"
+      ],
+      "inventory": [
+        { "key": "barbell", "name": "Olympic barbell", "notes": "PLACEHOLDER — 1x 20 kg" },
+        { "key": "plates", "name": "Bumper/iron plates", "notes": "PLACEHOLDER — assume up to ~160 kg total" },
+        { "key": "rack", "name": "Squat rack with safeties", "notes": "PLACEHOLDER" },
+        { "key": "bench", "name": "Adjustable bench", "notes": "PLACEHOLDER" },
+        { "key": "pull-up-bar", "name": "Pull-up bar", "notes": "PLACEHOLDER — wall/door mounted" },
+        { "key": "dumbbells", "name": "Adjustable dumbbells", "notes": "PLACEHOLDER — pair, up to ~32 kg each" },
+        { "key": "kettlebell", "name": "Kettlebells", "notes": "PLACEHOLDER — 16/24 kg" },
+        { "key": "resistance-band", "name": "Resistance bands", "notes": "PLACEHOLDER — light/medium/heavy" },
+        { "key": "mat", "name": "Exercise mat", "notes": "PLACEHOLDER" },
+        { "key": "jump-rope", "name": "Skipping rope", "notes": "PLACEHOLDER" },
+        { "key": "foam-roller", "name": "Foam roller", "notes": "PLACEHOLDER" },
+        { "key": "bike", "name": "Turbo trainer / road bike", "notes": "PLACEHOLDER" },
+        { "key": "open-road", "name": "Roads/trails for running", "notes": "PLACEHOLDER" }
+      ]
+    },
+    "Military": {
+      "label": "Military gym",
+      "available": [
+        "bodyweight", "dumbbells", "kettlebell", "pull-up-bar", "bench", "mat",
+        "resistance-band", "jump-rope", "foam-roller", "treadmill", "bike",
+        "pool", "open-road", "open-water", "barbell", "rack", "platform",
+        "plates", "cable-machine", "sled", "rower", "ski-erg", "medicine-ball",
+        "box", "sandbag", "tactical-vest"
+      ],
+      "inventory": [
+        { "key": "barbell", "name": "Multiple Olympic barbells", "notes": "PLACEHOLDER — full facility" },
+        { "key": "rack", "name": "Power racks", "notes": "PLACEHOLDER — several" },
+        { "key": "platform", "name": "Lifting platforms", "notes": "PLACEHOLDER" },
+        { "key": "plates", "name": "Full plate sets", "notes": "PLACEHOLDER" },
+        { "key": "dumbbells", "name": "Full dumbbell rack", "notes": "PLACEHOLDER — to ~50 kg" },
+        { "key": "kettlebell", "name": "Kettlebell set", "notes": "PLACEHOLDER — 8–48 kg" },
+        { "key": "cable-machine", "name": "Cable machines", "notes": "PLACEHOLDER" },
+        { "key": "rower", "name": "Concept2 rowers", "notes": "PLACEHOLDER" },
+        { "key": "ski-erg", "name": "SkiErgs", "notes": "PLACEHOLDER" },
+        { "key": "treadmill", "name": "Treadmills", "notes": "PLACEHOLDER" },
+        { "key": "bike", "name": "Air/spin bikes", "notes": "PLACEHOLDER" },
+        { "key": "pool", "name": "Swimming pool", "notes": "PLACEHOLDER — on site/nearby" },
+        { "key": "open-water", "name": "Open water access", "notes": "PLACEHOLDER" },
+        { "key": "sled", "name": "Prowler/sled", "notes": "PLACEHOLDER" },
+        { "key": "sandbag", "name": "Sandbags", "notes": "PLACEHOLDER" },
+        { "key": "tactical-vest", "name": "Weighted/plate vest", "notes": "PLACEHOLDER" },
+        { "key": "medicine-ball", "name": "Med/wall balls", "notes": "PLACEHOLDER" },
+        { "key": "box", "name": "Plyo boxes", "notes": "PLACEHOLDER" },
+        { "key": "bench", "name": "Benches", "notes": "PLACEHOLDER" },
+        { "key": "pull-up-bar", "name": "Pull-up rig", "notes": "PLACEHOLDER" }
+      ]
+    }
+  }
+}

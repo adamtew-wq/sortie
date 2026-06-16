@@ -1,0 +1,38 @@
+{
+  "$comment": "PLACEHOLDER DATA (issue #3 is HITL). Working weights = the load you'd use for a clean working set of 5 today. The engine seeds spine-lift loads from these until data/history.jsonl has a more recent logged load. REPLACE every value with your real numbers. Spine-lift names must match framework/exercise-library.json (spineCandidate: true).",
+  "placeholder": true,
+  "unit": "kg",
+  "spineLifts": {
+    "Back squat":            { "working5": 100, "notes": "PLACEHOLDER" },
+    "Front squat":           { "working5": 80,  "notes": "PLACEHOLDER" },
+    "Conventional deadlift": { "working5": 130, "notes": "PLACEHOLDER" },
+    "Romanian deadlift":     { "working5": 100, "notes": "PLACEHOLDER" },
+    "Bench press":           { "working5": 80,  "notes": "PLACEHOLDER" },
+    "Overhead press":        { "working5": 50,  "notes": "PLACEHOLDER" },
+    "Weighted pull-up":      { "working5": 20,  "notes": "PLACEHOLDER — added load on top of bodyweight" },
+    "Barbell row":           { "working5": 70,  "notes": "PLACEHOLDER" },
+    "Hip thrust":            { "working5": 120, "notes": "PLACEHOLDER" }
+  },
+  "cardio": {
+    "run": {
+      "5k": "24:00",
+      "notes": "PLACEHOLDER — current comfortable 5k time (mm:ss)"
+    },
+    "swim": {
+      "comfortableDistance_m": 1000,
+      "pace_per_100m": "2:00",
+      "notes": "PLACEHOLDER — front-crawl comfortable pace"
+    },
+    "bike": {
+      "ftp_watts": 220,
+      "comfortableDistance_km": 40,
+      "notes": "PLACEHOLDER — rough FTP or comfortable steady distance"
+    },
+    "conditioning": {
+      "row_2k": "7:30",
+      "max_pushups": 45,
+      "max_pullups": 12,
+      "notes": "PLACEHOLDER — key benchmarks"
+    }
+  }
+}

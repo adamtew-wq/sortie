@@ -1,0 +1,11 @@
+{
+  "$comment": "PLACEHOLDER DATA (issue #3 is HITL). Persistent training objectives and their relative priority weights. Weights sum to 1.0; the engine biases Modality selection toward under-served high-weight attributes. REPLACE with your real priorities.",
+  "placeholder": true,
+  "attributes": [
+    { "key": "strength",          "label": "Maximal strength",   "weight": 0.30, "priority": "high",     "modalities": ["weights"] },
+    { "key": "aerobic-base",      "label": "Aerobic base",       "weight": 0.25, "priority": "high",     "modalities": ["run", "bike", "swim"] },
+    { "key": "5k-speed",          "label": "5k running speed",   "weight": 0.20, "priority": "medium",   "modalities": ["run"] },
+    { "key": "body-composition",  "label": "Body composition",   "weight": 0.15, "priority": "maintain", "modalities": ["conditioning", "weights"] },
+    { "key": "swim-fitness",      "label": "Swim fitness",       "weight": 0.10, "priority": "maintain", "modalities": ["swim"] }
+  ]
+}

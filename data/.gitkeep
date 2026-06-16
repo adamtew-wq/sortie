@@ -1,2 +1,0 @@
-# Keeps data/ tracked before the onboarding seed (issue #3) populates it.
-# data/ is the single source of truth and is intentionally committed in full.
