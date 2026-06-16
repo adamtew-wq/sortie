@@ -8,11 +8,18 @@ import {
   renderCheckin,
   renderSuggestion,
   renderLogging,
+  renderSummary,
+  renderSaved,
+  loadLocalHistory,
 } from './ui/state.js';
+
+const LOAD_STEP_KG = 2.5;
+const REPS_STEP = 1;
 
 let state = initialState();
 let framework = null;
 let data = null;
+let elapsedTimer = null;
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -35,11 +42,21 @@ async function fetchHistory(url) {
   }
 }
 
+function localStorageOrNull() {
+  try { return window.localStorage; } catch { return null; }
+}
+
+function mergeHistory(fileHistory, localHistory) {
+  return [...(fileHistory || []), ...(localHistory || [])]
+    .slice()
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
+
 async function loadResources() {
   const base = '..'; // app/ is one level deep; framework/ and data/ are siblings of app/.
   const [
     exerciseLibrary, sessionTemplates, sessionSchema, rehabProtocols,
-    equipment, baselines, attributes, events, niggles, history,
+    equipment, baselines, attributes, events, niggles, fileHistory,
   ] = await Promise.all([
     fetchJSON(`${base}/framework/exercise-library.json`),
     fetchJSON(`${base}/framework/session-templates.json`),
@@ -53,7 +70,26 @@ async function loadResources() {
     fetchHistory(`${base}/data/history.jsonl`),
   ]);
   framework = { exerciseLibrary, sessionTemplates, sessionSchema, rehabProtocols };
-  data = { equipment, baselines, attributes, events, niggles, history };
+  const storage = localStorageOrNull();
+  const localHistory = storage ? loadLocalHistory(storage) : [];
+  data = {
+    equipment, baselines, attributes, events, niggles,
+    history: mergeHistory(fileHistory, localHistory),
+  };
+}
+
+function fmtClock(ms) {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const mm = Math.floor(total / 60);
+  const ss = String(total % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
+function tickElapsed() {
+  const el = document.querySelector('.duration[data-elapsed-from]');
+  if (!el) return;
+  const startedAt = Number(el.dataset.elapsedFrom);
+  el.textContent = fmtClock(Date.now() - startedAt);
 }
 
 function mount() {
@@ -62,8 +98,19 @@ function mount() {
   let html = '';
   if (state.stage === 'checkin') html = renderCheckin(state);
   else if (state.stage === 'suggestion') html = renderSuggestion(state);
-  else if (state.stage === 'logging') html = renderLogging();
+  else if (state.stage === 'logging') html = renderLogging(state);
+  else if (state.stage === 'summary') html = renderSummary(state);
+  else if (state.stage === 'saved') html = renderSaved();
   root.innerHTML = html;
+
+  // Drive a 1Hz timer only while we're in the logging stage.
+  if (state.stage === 'logging' && !elapsedTimer) {
+    tickElapsed();
+    elapsedTimer = setInterval(tickElapsed, 1000);
+  } else if (state.stage !== 'logging' && elapsedTimer) {
+    clearInterval(elapsedTimer);
+    elapsedTimer = null;
+  }
 }
 
 function dispatch(action) {
@@ -82,9 +129,41 @@ function readAdHocSelection() {
   return Array.from(toggles).map((el) => el.dataset.adhocToggle);
 }
 
+function currentLoggingSet() {
+  const log = state.logging;
+  if (!log) return null;
+  const ex = log.actuals[log.exerciseIndex];
+  if (!ex) return null;
+  return { exerciseIndex: log.exerciseIndex, setIndex: log.setIndex, set: ex.sets[log.setIndex] };
+}
+
+function adjustLoad(dir) {
+  const cur = currentLoggingSet();
+  if (!cur) return;
+  const step = dir === 'up' ? LOAD_STEP_KG : -LOAD_STEP_KG;
+  const base = typeof cur.set.load === 'number' ? cur.set.load : 0;
+  const next = Math.max(0, Math.round((base + step) / 2.5) * 2.5);
+  dispatch({
+    type: 'LOG_EDIT_SET',
+    payload: { exerciseIndex: cur.exerciseIndex, setIndex: cur.setIndex, load: next },
+  });
+}
+
+function adjustReps(dir) {
+  const cur = currentLoggingSet();
+  if (!cur) return;
+  const step = dir === 'up' ? REPS_STEP : -REPS_STEP;
+  const base = typeof cur.set.reps === 'number' ? cur.set.reps : 1;
+  const next = Math.max(1, base + step);
+  dispatch({
+    type: 'LOG_EDIT_SET',
+    payload: { exerciseIndex: cur.exerciseIndex, setIndex: cur.setIndex, reps: next },
+  });
+}
+
 document.addEventListener('click', (event) => {
   const t = event.target.closest(
-    '[data-action], [data-energy], [data-soreness], [data-sleep], [data-focus], [data-shorten], [data-location], [data-adhoc-toggle]',
+    '[data-action], [data-energy], [data-soreness], [data-sleep], [data-focus], [data-shorten], [data-location], [data-adhoc-toggle], [data-edit-load], [data-edit-reps], [data-rpe]',
   );
   if (!t) return;
 
@@ -96,6 +175,15 @@ document.addEventListener('click', (event) => {
   }
   if (t.dataset.sleep != null) {
     return dispatch({ type: 'SET_SLEEP', payload: t.dataset.sleep });
+  }
+  if (t.dataset.editLoad != null) {
+    return adjustLoad(t.dataset.editLoad);
+  }
+  if (t.dataset.editReps != null) {
+    return adjustReps(t.dataset.editReps);
+  }
+  if (t.dataset.rpe != null) {
+    return dispatch({ type: 'LOG_SET_RPE', payload: Number(t.dataset.rpe) });
   }
   if (t.dataset.focus != null) {
     dispatch({ type: 'SET_FOCUS', payload: t.dataset.focus });
@@ -134,7 +222,19 @@ document.addEventListener('click', (event) => {
       return dispatch({ type: 'REGENERATE', ...generationContext() });
     }
     case 'start':
-      return dispatch({ type: 'START' });
+      return dispatch({ type: 'START', startedAt: Date.now() });
+    case 'log-done':
+      return dispatch({ type: 'LOG_DONE_SET' });
+    case 'log-skip':
+      return dispatch({ type: 'LOG_SKIP_EXERCISE' });
+    case 'log-end-early':
+      return dispatch({ type: 'LOG_END_EARLY' });
+    case 'log-save':
+      return dispatch({
+        type: 'LOG_SAVE',
+        endedAt: Date.now(),
+        storage: localStorageOrNull(),
+      });
     case 'back':
       return dispatch({ type: 'BACK_TO_CHECKIN' });
     default:

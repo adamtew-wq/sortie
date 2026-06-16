@@ -29,6 +29,9 @@ const MODALITIES = ['weights', 'run', 'swim', 'bike', 'conditioning'];
 const SHORTEN_OPTIONS = [20, 30, 45];
 const DEFAULT_LOCATION = 'Home';
 const DEFAULT_TIME_BUDGET = 45;
+const HISTORY_KEY = 'sortie.history';
+const LOAD_STEP_KG = 2.5;
+const REPS_STEP = 1;
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -40,6 +43,7 @@ export function initialState() {
     overrides: { modality: null, timeBudget: null },
     suggestion: null,
     pickers: { focus: false, location: false, shorten: false },
+    logging: null,
   };
 }
 
@@ -110,12 +114,194 @@ export function reducer(state, action) {
       return { ...state, suggestion, stage: 'suggestion' };
     }
     case 'START':
-      return { ...state, stage: 'logging' };
+      return {
+        ...state,
+        stage: 'logging',
+        logging: state.suggestion ? initLoggingState(state.suggestion, action.startedAt) : null,
+      };
+    case 'LOG_DONE_SET':
+      return logDoneSet(state);
+    case 'LOG_EDIT_SET':
+      return logEditSet(state, action.payload);
+    case 'LOG_SKIP_EXERCISE':
+      return logSkipExercise(state);
+    case 'LOG_END_EARLY':
+      return {
+        ...state,
+        stage: 'summary',
+        logging: { ...state.logging, endedEarly: true },
+      };
+    case 'LOG_SET_RPE':
+      return { ...state, logging: { ...state.logging, rpe: action.payload } };
+    case 'LOG_SAVE': {
+      const endedAt = action.endedAt ?? Date.now();
+      const entry = buildLogEntry(state, endedAt);
+      if (action.storage) appendHistoryEntry(entry, action.storage);
+      return { ...state, stage: 'saved', logging: { ...state.logging, savedEntry: entry } };
+    }
     case 'BACK_TO_CHECKIN':
       return { ...initialState(), location: state.location };
     default:
       return state;
   }
+}
+
+// --- Logging state machine helpers --------------------------------------
+
+function initLoggingState(suggestion, startedAt) {
+  const actuals = suggestion.main.map((block) => {
+    const setCount = typeof block.sets === 'number' && block.sets > 0 ? block.sets : 1;
+    return {
+      name: block.exercise,
+      prescribed: { sets: block.sets, reps: block.reps, load: block.load },
+      sets: Array.from({ length: setCount }, () => ({
+        reps: block.reps,
+        load: block.load,
+        done: false,
+        skipped: false,
+      })),
+      skippedExercise: false,
+    };
+  });
+  return {
+    actuals,
+    exerciseIndex: 0,
+    setIndex: 0,
+    rpe: null,
+    endedEarly: false,
+    startedAt: startedAt ?? Date.now(),
+  };
+}
+
+function advanceCursor(actuals, exerciseIndex, setIndex) {
+  let i = exerciseIndex;
+  let j = setIndex + 1;
+  while (i < actuals.length) {
+    if (actuals[i].skippedExercise) {
+      i += 1;
+      j = 0;
+      continue;
+    }
+    if (j < actuals[i].sets.length) return { exerciseIndex: i, setIndex: j, done: false };
+    i += 1;
+    j = 0;
+  }
+  return { exerciseIndex: actuals.length, setIndex: 0, done: true };
+}
+
+function logDoneSet(state) {
+  const { exerciseIndex, setIndex } = state.logging;
+  const actuals = state.logging.actuals.map((ex, i) => {
+    if (i !== exerciseIndex) return ex;
+    return {
+      ...ex,
+      sets: ex.sets.map((s, j) => (j === setIndex ? { ...s, done: true } : s)),
+    };
+  });
+  const next = advanceCursor(actuals, exerciseIndex, setIndex);
+  const baseLogging = { ...state.logging, actuals };
+  if (next.done) {
+    return { ...state, stage: 'summary', logging: baseLogging };
+  }
+  return {
+    ...state,
+    logging: { ...baseLogging, exerciseIndex: next.exerciseIndex, setIndex: next.setIndex },
+  };
+}
+
+function logEditSet(state, { exerciseIndex, setIndex, reps, load }) {
+  const actuals = state.logging.actuals.map((ex, i) => {
+    if (i !== exerciseIndex) return ex;
+    return {
+      ...ex,
+      sets: ex.sets.map((s, j) => {
+        if (j !== setIndex) return s;
+        const out = { ...s };
+        if (reps !== undefined) out.reps = reps;
+        if (load !== undefined) out.load = load;
+        return out;
+      }),
+    };
+  });
+  return { ...state, logging: { ...state.logging, actuals } };
+}
+
+function logSkipExercise(state) {
+  const idx = state.logging.exerciseIndex;
+  const actuals = state.logging.actuals.map((ex, i) => {
+    if (i !== idx) return ex;
+    return {
+      ...ex,
+      skippedExercise: true,
+      sets: ex.sets.map((s) => (s.done ? s : { ...s, skipped: true })),
+    };
+  });
+  let i = idx + 1;
+  while (i < actuals.length && actuals[i].skippedExercise) i += 1;
+  const baseLogging = { ...state.logging, actuals };
+  if (i >= actuals.length) {
+    return { ...state, stage: 'summary', logging: baseLogging };
+  }
+  return {
+    ...state,
+    logging: { ...baseLogging, exerciseIndex: i, setIndex: 0 },
+  };
+}
+
+// --- Log-entry builder + local persistence ------------------------------
+
+function summariseExercise(ex) {
+  const doneSets = ex.sets.filter((s) => s.done);
+  const last = doneSets[doneSets.length - 1] || { reps: ex.prescribed.reps, load: ex.prescribed.load };
+  const allDone = !ex.skippedExercise && ex.sets.every((s) => s.done);
+  return {
+    name: ex.name,
+    sets: doneSets.length,
+    reps: last.reps,
+    load: last.load,
+    success: allDone,
+    skipped: !!ex.skippedExercise,
+    actualSets: ex.sets.map((s) => ({
+      reps: s.reps,
+      load: s.load,
+      done: s.done,
+      skipped: s.skipped,
+    })),
+  };
+}
+
+export function buildLogEntry(state, endedAt) {
+  const meta = state.suggestion.metadata;
+  const log = state.logging;
+  const minutes = Math.max(0, Math.round((endedAt - log.startedAt) / 60000));
+  const exercises = log.actuals
+    .filter((ex) => ex.sets.some((s) => s.done) || ex.skippedExercise)
+    .map(summariseExercise);
+  return {
+    date: meta.date,
+    modality: meta.modality,
+    sessionType: meta.sessionType,
+    duration: minutes,
+    equipmentProfile: meta.equipmentProfile,
+    readiness: meta.readiness,
+    rpe: log.rpe,
+    endedEarly: !!log.endedEarly,
+    exercises,
+  };
+}
+
+export function appendHistoryEntry(entry, storage) {
+  const prev = storage.getItem(HISTORY_KEY) || '';
+  const sep = prev === '' || prev.endsWith('\n') ? '' : '\n';
+  storage.setItem(HISTORY_KEY, `${prev}${sep}${JSON.stringify(entry)}\n`);
+}
+
+export function loadLocalHistory(storage) {
+  const raw = storage.getItem(HISTORY_KEY) || '';
+  return raw
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
 }
 
 // --- Rendering helpers ---
@@ -273,12 +459,104 @@ export function renderSuggestion(state) {
   `;
 }
 
-export function renderLogging() {
+function fmtLoad(load) {
+  if (load === undefined || load === null) return '—';
+  if (typeof load === 'number') return `${load} kg`;
+  return String(load);
+}
+
+function fmtReps(reps) {
+  if (reps === undefined || reps === null) return '—';
+  return String(reps);
+}
+
+export function renderLogging(state) {
+  const log = state.logging;
+  if (!log) return '<section class="logging"><p>No session in progress.</p></section>';
+  const cur = log.actuals[log.exerciseIndex];
+  if (!cur) return '<section class="logging"><p>All sets confirmed.</p></section>';
+  const setNum = log.setIndex + 1;
+  const setTotal = cur.sets.length;
+  const set = cur.sets[log.setIndex];
+  const meta = state.suggestion?.metadata || {};
   return `
     <section class="logging">
-      <h1>Logging — coming next slice</h1>
-      <p>Tap-to-confirm logging is issue #7. For now, do the session and we'll capture it next.</p>
-      <button type="button" data-action="back">Back to suggestion</button>
+      <header class="log-head">
+        <span class="modality-badge">${escapeHtml(meta.modality || '')}</span>
+        <span class="duration" data-elapsed-from="${log.startedAt}">0:00</span>
+      </header>
+      <h1 class="log-ex">${escapeHtml(cur.name)}</h1>
+      <p class="hint">Set ${setNum} of ${setTotal}</p>
+
+      <div class="log-prescription">
+        <div class="log-field" data-field="load">
+          <span class="lbl">Load</span>
+          <button type="button" class="chip step" data-edit-load="down" aria-label="Decrease load">−</button>
+          <span class="val">${escapeHtml(fmtLoad(set.load))}</span>
+          <button type="button" class="chip step" data-edit-load="up" aria-label="Increase load">+</button>
+        </div>
+        <div class="log-field" data-field="reps">
+          <span class="lbl">Reps</span>
+          <button type="button" class="chip step" data-edit-reps="down" aria-label="Decrease reps">−</button>
+          <span class="val">${escapeHtml(fmtReps(set.reps))}</span>
+          <button type="button" class="chip step" data-edit-reps="up" aria-label="Increase reps">+</button>
+        </div>
+      </div>
+
+      <button type="button" class="primary log-done" data-action="log-done">Done ✓</button>
+
+      <nav class="overrides" aria-label="Session controls">
+        <button type="button" data-action="log-skip">Skip exercise</button>
+        <button type="button" data-action="log-end-early">End session early</button>
+      </nav>
+    </section>
+  `;
+}
+
+function summaryExerciseLine(ex) {
+  const doneCount = ex.sets.filter((s) => s.done).length;
+  const total = ex.sets.length;
+  const last = ex.sets.filter((s) => s.done).slice(-1)[0] || ex.sets[0];
+  const note = ex.skippedExercise ? ' · skipped' : '';
+  return `
+    <li class="block">
+      <div class="b-name">${escapeHtml(ex.name)}${note}</div>
+      <div class="b-meta">${doneCount}/${total} sets · ${escapeHtml(fmtLoad(last.load))} · ${escapeHtml(fmtReps(last.reps))} reps</div>
+    </li>
+  `;
+}
+
+export function renderSummary(state) {
+  const log = state.logging;
+  if (!log) return '<section class="summary"><p>Nothing to log.</p></section>';
+  const items = log.actuals
+    .filter((ex) => ex.sets.some((s) => s.done) || ex.skippedExercise)
+    .map(summaryExerciseLine)
+    .join('');
+  const rpeChips = Array.from({ length: 10 }, (_, i) => i + 1)
+    .map((n) => chip('rpe', String(n), String(n), log.rpe === n))
+    .join('');
+  return `
+    <section class="summary">
+      <h1>Session summary</h1>
+      <ul class="blocks">${items}</ul>
+
+      <fieldset class="group">
+        <legend>How hard was it? (RPE 1–10)</legend>
+        <div class="row wrap">${rpeChips}</div>
+      </fieldset>
+
+      <button type="button" class="primary" data-action="log-save">Save</button>
+    </section>
+  `;
+}
+
+export function renderSaved() {
+  return `
+    <section class="saved">
+      <h1>Session logged.</h1>
+      <p class="hint">Your training history is up to date.</p>
+      <button type="button" class="primary" data-action="back">Back to today</button>
     </section>
   `;
 }

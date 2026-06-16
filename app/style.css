@@ -235,10 +235,77 @@ li.block.rehab .b-name { color: var(--accent); }
 
 .start { margin-top: 20px; }
 
-/* Logging placeholder */
+/* Logging screen (issue #7) */
 .logging { text-align: left; }
-.logging button {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid #25252c;
+.logging .log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
+.logging h1.log-ex {
+  margin: 4px 0 0;
+  font-size: 24px;
+  text-transform: capitalize;
+}
+.log-prescription {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+.log-field {
+  display: grid;
+  grid-template-columns: 64px 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.log-field .lbl {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.log-field .val {
+  text-align: center;
+  font-weight: 700;
+  font-size: 22px;
+  min-width: 80px;
+}
+.log-field .chip.step {
+  flex: none;
+  min-width: 48px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.logging .log-done { margin-top: 8px; }
+.logging .overrides {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 12px;
+}
+
+/* Summary + saved screens (issue #7) */
+.summary { text-align: left; }
+.summary ul.blocks {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin: 12px 0;
+}
+.summary fieldset.group {
+  margin: 16px 0;
+  border: 0;
+  padding: 0;
+}
+.summary legend {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.saved { text-align: center; }
+.saved h1 { margin-top: 24px; }
