@@ -1,0 +1,20 @@
+{
+  "name": "Sortie",
+  "short_name": "Sortie",
+  "description": "AI-driven adaptive training session generator. Daily sessions on demand.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0a0a0c",
+  "background_color": "#0a0a0c",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
