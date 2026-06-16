@@ -30,8 +30,23 @@ const SHORTEN_OPTIONS = [20, 30, 45];
 const DEFAULT_LOCATION = 'Home';
 const DEFAULT_TIME_BUDGET = 45;
 const HISTORY_KEY = 'sortie.history';
+export const NIGGLES_KEY = 'sortie.niggles';
 const LOAD_STEP_KG = 2.5;
 const REPS_STEP = 1;
+
+// Region → rehab protocol map mirrors framework/injury-routing.md so the UI
+// can offer "View protocol" without re-deriving the routing.
+const REGION_TO_REHAB = {
+  knee: 'knee-basic',
+  shoulder: 'shoulder-basic',
+  'lower-back': 'lower-back-basic',
+  hip: 'lower-back-basic',
+  ankle: 'lower-back-basic',
+  other: 'lower-back-basic',
+};
+
+const NIGGLE_REGIONS = ['knee', 'shoulder', 'lower-back', 'hip', 'ankle', 'other'];
+const NIGGLE_SEVERITIES = ['mild', 'moderate', 'significant'];
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -44,6 +59,10 @@ export function initialState() {
     suggestion: null,
     pickers: { focus: false, location: false, shorten: false },
     logging: null,
+    niggles: [],
+    niggleDraft: { label: '', region: null, severity: null },
+    rehab: null,
+    prevStage: null,
   };
 }
 
@@ -51,7 +70,16 @@ export function mapCheckinToInputs(checkin, ctx, date) {
   const energy = checkin.energy ?? 3;
   const sleepMod = SLEEP_MOD[checkin.sleep] ?? 0;
   const readiness = clamp(energy + sleepMod, 1, 5);
-  const activeNiggles = SORENESS_NIGGLES[checkin.soreness] || [];
+  const sorenessNiggles = SORENESS_NIGGLES[checkin.soreness] || [];
+  const managed = (ctx.niggles || [])
+    .filter((n) => n.status === 'active')
+    .map((n) => ({
+      region: n.region,
+      severity: n.severity,
+      rehabProtocolId: REGION_TO_REHAB[n.region] || REGION_TO_REHAB.other,
+      label: n.label,
+    }));
+  const activeNiggles = dedupeNiggles([...sorenessNiggles, ...managed]);
   const equipmentProfile = isAdHoc(ctx.location) ? ctx.location.equipment : ctx.location;
   const inputs = {
     date,
@@ -64,6 +92,17 @@ export function mapCheckinToInputs(checkin, ctx, date) {
   return inputs;
 }
 
+function dedupeNiggles(list) {
+  const seen = new Set();
+  const out = [];
+  for (const n of list) {
+    if (seen.has(n.region)) continue;
+    seen.add(n.region);
+    out.push(n);
+  }
+  return out;
+}
+
 function isAdHoc(location) {
   return location && typeof location === 'object' && location.kind === 'adhoc';
 }
@@ -71,10 +110,14 @@ function isAdHoc(location) {
 function runEngine(state, framework, data, date) {
   const inputs = mapCheckinToInputs(
     state.checkin,
-    { location: state.location, overrides: state.overrides },
+    { location: state.location, overrides: state.overrides, niggles: state.niggles },
     date,
   );
   return generateSession(inputs, framework, data);
+}
+
+function activeNiggleRegions(state) {
+  return state.niggles.filter((n) => n.status === 'active').map((n) => n.region);
 }
 
 export function reducer(state, action) {
@@ -140,10 +183,139 @@ export function reducer(state, action) {
       return { ...state, stage: 'saved', logging: { ...state.logging, savedEntry: entry } };
     }
     case 'BACK_TO_CHECKIN':
-      return { ...initialState(), location: state.location };
+      return { ...initialState(), location: state.location, niggles: state.niggles };
+    case 'OPEN_NIGGLES':
+      return { ...state, stage: 'niggles', prevStage: state.stage };
+    case 'CLOSE_NIGGLES':
+      return { ...state, stage: state.prevStage || 'checkin', prevStage: null };
+    case 'SET_NIGGLE_DRAFT_REGION':
+      return { ...state, niggleDraft: { ...state.niggleDraft, region: action.payload } };
+    case 'SET_NIGGLE_DRAFT_SEVERITY':
+      return { ...state, niggleDraft: { ...state.niggleDraft, severity: action.payload } };
+    case 'SET_NIGGLE_DRAFT_LABEL':
+      return { ...state, niggleDraft: { ...state.niggleDraft, label: action.payload } };
+    case 'ADD_NIGGLE': {
+      const niggle = buildNiggle(action.payload, action.date);
+      const niggles = [...state.niggles, niggle];
+      if (action.storage) persistNiggles(niggles, action.storage);
+      return {
+        ...state,
+        niggles,
+        niggleDraft: { label: '', region: null, severity: null },
+      };
+    }
+    case 'CLEAR_NIGGLE': {
+      const niggles = state.niggles.map((n) =>
+        n.id === action.payload ? { ...n, status: 'cleared', clearedAt: action.date } : n,
+      );
+      if (action.storage) persistNiggles(niggles, action.storage);
+      return { ...state, niggles };
+    }
+    case 'OPEN_REHAB':
+      return {
+        ...state,
+        stage: 'rehab',
+        rehab: { protocolId: action.payload },
+        prevStage: state.stage === 'rehab' ? state.prevStage : state.stage,
+      };
+    case 'CLOSE_REHAB':
+      return { ...state, stage: state.prevStage || 'niggles', rehab: null, prevStage: null };
+    case 'RUN_REHAB_STANDALONE': {
+      const suggestion = buildRehabStandalone(
+        action.payload,
+        action.framework,
+        action.data,
+        state.location,
+        action.date,
+      );
+      if (!suggestion) return state;
+      return {
+        ...state,
+        suggestion,
+        stage: 'logging',
+        logging: initLoggingState(suggestion, action.startedAt),
+        rehab: null,
+      };
+    }
+    case 'HYDRATE_NIGGLES':
+      return { ...state, niggles: action.payload || [] };
     default:
       return state;
   }
+}
+
+function genNiggleId() {
+  return `n-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function buildNiggle(payload, date) {
+  return {
+    id: genNiggleId(),
+    label: payload.label || '',
+    region: payload.region,
+    severity: payload.severity,
+    dateFlagged: date,
+    status: 'active',
+  };
+}
+
+function persistNiggles(niggles, storage) {
+  storage.setItem(NIGGLES_KEY, JSON.stringify(niggles));
+}
+
+export function appendNiggle(niggle, storage) {
+  const prev = loadLocalNiggles(storage);
+  persistNiggles([...prev, niggle], storage);
+}
+
+export function loadLocalNiggles(storage) {
+  const raw = storage.getItem(NIGGLES_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildRehabStandalone(protocolId, framework, data, location, date) {
+  const protocol = (framework?.rehabProtocols?.protocols || []).find((p) => p.id === protocolId);
+  if (!protocol) return null;
+  const byName = new Map(framework.exerciseLibrary.exercises.map((e) => [e.name, e]));
+  const equipmentProfile = isAdHoc(location) ? location.equipment : location;
+  const equipmentSet = resolveEquipmentSet(equipmentProfile, data);
+  const main = [];
+  for (const def of protocol.exercises) {
+    const ex = byName.get(def.name);
+    if (ex && !ex.equipment.every((k) => equipmentSet.has(k))) continue;
+    const block = { exercise: def.name, sets: def.sets, cue: def.cue, rehab: true };
+    if (def.reps) block.reps = def.reps;
+    if (def.duration) block.duration = def.duration;
+    main.push(block);
+  }
+  const duration = Math.max(5, main.length * 3);
+  return {
+    warmup: [],
+    main,
+    cooldown: [],
+    rationale: `Standalone rehab — ${protocol.injury}`,
+    metadata: {
+      date,
+      modality: 'conditioning',
+      sessionType: 'rehab',
+      duration,
+      equipmentProfile: typeof equipmentProfile === 'string' ? equipmentProfile : 'ad-hoc',
+      readiness: 3,
+      eventOverlay: null,
+    },
+  };
+}
+
+function resolveEquipmentSet(profile, data) {
+  if (Array.isArray(profile)) return new Set(profile);
+  const available = data?.equipment?.profiles?.[profile]?.available || [];
+  return new Set(available);
 }
 
 // --- Logging state machine helpers --------------------------------------
@@ -420,6 +592,12 @@ export function renderSuggestion(state) {
   if (!s) return '';
   const m = s.metadata;
   const locationLabel = isAdHoc(state.location) ? 'Ad-hoc' : String(state.location);
+  const activeRegions = activeNiggleRegions(state);
+  const banner = activeRegions.length
+    ? `<button type="button" class="niggle-banner" data-action="open-niggles">
+         Niggles active: ${escapeHtml(activeRegions.join(', '))} · review
+       </button>`
+    : '';
   return `
     <section class="suggestion">
       <header class="s-head">
@@ -427,6 +605,7 @@ export function renderSuggestion(state) {
         <span class="duration">${m.duration} min</span>
         <span class="location">${escapeHtml(locationLabel)}</span>
       </header>
+      ${banner}
       <p class="rationale">${escapeHtml(s.rationale)}</p>
 
       <details data-block="warmup">
@@ -557,6 +736,121 @@ export function renderSaved() {
       <h1>Session logged.</h1>
       <p class="hint">Your training history is up to date.</p>
       <button type="button" class="primary" data-action="back">Back to today</button>
+    </section>
+  `;
+}
+
+// --- Niggles management screen (issue #8) -------------------------------
+
+function niggleListItem(n) {
+  const protocolId = REGION_TO_REHAB[n.region] || REGION_TO_REHAB.other;
+  const cleared = n.status === 'cleared';
+  const note = cleared ? ` <span class="tag">cleared</span>` : '';
+  const clearBtn = cleared
+    ? ''
+    : `<button type="button" data-action="clear-niggle" data-niggle-id="${escapeHtml(n.id)}">Clear</button>`;
+  return `
+    <li class="block">
+      <div class="b-name">${escapeHtml(n.label || n.region)}${note}</div>
+      <div class="b-meta">${escapeHtml(n.region)} · ${escapeHtml(n.severity)} · flagged ${escapeHtml(n.dateFlagged || '')}</div>
+      <div class="niggle-actions">
+        <button type="button" data-action="view-protocol" data-protocol-id="${escapeHtml(protocolId)}">View protocol</button>
+        ${clearBtn}
+      </div>
+    </li>
+  `;
+}
+
+export function renderNiggles(state) {
+  const active = state.niggles.filter((n) => n.status === 'active');
+  const archived = state.niggles.filter((n) => n.status === 'cleared');
+  const draft = state.niggleDraft || { label: '', region: null, severity: null };
+  const regionChips = NIGGLE_REGIONS
+    .map((r) => chip('niggle-region', r, r, draft.region === r))
+    .join('');
+  const severityChips = NIGGLE_SEVERITIES
+    .map((sev) => chip('niggle-severity', sev, sev, draft.severity === sev))
+    .join('');
+  const activeList = active.length
+    ? `<ul class="blocks">${active.map(niggleListItem).join('')}</ul>`
+    : '<p class="hint">No active niggles. Good news.</p>';
+  const archivedSection = archived.length
+    ? `<details class="archived"><summary>Archived (${archived.length})</summary>
+        <ul class="blocks">${archived.map(niggleListItem).join('')}</ul>
+      </details>`
+    : '';
+  return `
+    <section class="niggles">
+      <header class="s-head">
+        <h1>Niggles</h1>
+        <button type="button" data-action="close-niggles">Back</button>
+      </header>
+
+      <h2>Active</h2>
+      ${activeList}
+
+      ${archivedSection}
+
+      <h2>Add a niggle</h2>
+      <p class="hint">Region and severity required. Label is optional.</p>
+      <input type="text" class="niggle-label" data-niggle-label
+             value="${escapeHtml(draft.label)}"
+             placeholder="e.g. Right knee tendinopathy">
+
+      <fieldset class="group">
+        <legend>Region</legend>
+        <div class="row wrap">${regionChips}</div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Severity</legend>
+        <div class="row wrap">${severityChips}</div>
+      </fieldset>
+
+      <button type="button" class="primary" data-action="add-niggle">Add niggle</button>
+    </section>
+  `;
+}
+
+// --- Rehab protocol viewer (issue #8) -----------------------------------
+
+function rehabExerciseLine(def) {
+  const parts = [];
+  if (def.sets) parts.push(`${def.sets} set${def.sets === 1 ? '' : 's'}`);
+  if (def.reps) parts.push(`${def.reps} reps`);
+  if (def.duration) parts.push(def.duration);
+  return `
+    <li class="block rehab">
+      <div class="b-name">${escapeHtml(def.name)}</div>
+      <div class="b-meta">${escapeHtml(parts.join(' · '))}</div>
+      <div class="b-cue">${escapeHtml(def.cue || '')}</div>
+    </li>
+  `;
+}
+
+export function renderRehab(state, framework) {
+  const protocolId = state.rehab?.protocolId;
+  const protocols = framework?.rehabProtocols?.protocols || [];
+  const protocol = protocols.find((p) => p.id === protocolId);
+  if (!protocol) {
+    return `
+      <section class="rehab">
+        <p>Unknown rehab protocol.</p>
+        <button type="button" data-action="close-rehab">Back</button>
+      </section>
+    `;
+  }
+  return `
+    <section class="rehab">
+      <header class="s-head">
+        <h1>${escapeHtml(protocol.injury)}</h1>
+        <button type="button" data-action="close-rehab">Back</button>
+      </header>
+      <p class="hint">${escapeHtml(protocol.notes || '')}</p>
+      <ul class="blocks">${protocol.exercises.map(rehabExerciseLine).join('')}</ul>
+      <button type="button" class="primary" data-action="run-rehab" data-protocol-id="${escapeHtml(protocol.id)}">
+        Run as standalone session
+      </button>
     </section>
   `;
 }

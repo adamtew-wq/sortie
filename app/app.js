@@ -10,7 +10,10 @@ import {
   renderLogging,
   renderSummary,
   renderSaved,
+  renderNiggles,
+  renderRehab,
   loadLocalHistory,
+  loadLocalNiggles,
 } from './ui/state.js';
 
 const LOAD_STEP_KG = 2.5;
@@ -76,6 +79,12 @@ async function loadResources() {
     equipment, baselines, attributes, events, niggles,
     history: mergeHistory(fileHistory, localHistory),
   };
+  if (storage) {
+    const localNiggles = loadLocalNiggles(storage);
+    if (localNiggles.length) {
+      state = reducer(state, { type: 'HYDRATE_NIGGLES', payload: localNiggles });
+    }
+  }
 }
 
 function fmtClock(ms) {
@@ -101,6 +110,8 @@ function mount() {
   else if (state.stage === 'logging') html = renderLogging(state);
   else if (state.stage === 'summary') html = renderSummary(state);
   else if (state.stage === 'saved') html = renderSaved();
+  else if (state.stage === 'niggles') html = renderNiggles(state, framework);
+  else if (state.stage === 'rehab') html = renderRehab(state, framework);
   root.innerHTML = html;
 
   // Drive a 1Hz timer only while we're in the logging stage.
@@ -161,9 +172,15 @@ function adjustReps(dir) {
   });
 }
 
+document.addEventListener('input', (event) => {
+  const t = event.target.closest('[data-niggle-label]');
+  if (!t) return;
+  dispatch({ type: 'SET_NIGGLE_DRAFT_LABEL', payload: t.value });
+});
+
 document.addEventListener('click', (event) => {
   const t = event.target.closest(
-    '[data-action], [data-energy], [data-soreness], [data-sleep], [data-focus], [data-shorten], [data-location], [data-adhoc-toggle], [data-edit-load], [data-edit-reps], [data-rpe]',
+    '[data-action], [data-energy], [data-soreness], [data-sleep], [data-focus], [data-shorten], [data-location], [data-adhoc-toggle], [data-edit-load], [data-edit-reps], [data-rpe], [data-niggle-region], [data-niggle-severity]',
   );
   if (!t) return;
 
@@ -184,6 +201,12 @@ document.addEventListener('click', (event) => {
   }
   if (t.dataset.rpe != null) {
     return dispatch({ type: 'LOG_SET_RPE', payload: Number(t.dataset.rpe) });
+  }
+  if (t.dataset.niggleRegion != null) {
+    return dispatch({ type: 'SET_NIGGLE_DRAFT_REGION', payload: t.dataset.niggleRegion });
+  }
+  if (t.dataset.niggleSeverity != null) {
+    return dispatch({ type: 'SET_NIGGLE_DRAFT_SEVERITY', payload: t.dataset.niggleSeverity });
   }
   if (t.dataset.focus != null) {
     dispatch({ type: 'SET_FOCUS', payload: t.dataset.focus });
@@ -237,6 +260,49 @@ document.addEventListener('click', (event) => {
       });
     case 'back':
       return dispatch({ type: 'BACK_TO_CHECKIN' });
+    case 'open-niggles':
+      return dispatch({ type: 'OPEN_NIGGLES' });
+    case 'close-niggles':
+      return dispatch({ type: 'CLOSE_NIGGLES' });
+    case 'add-niggle': {
+      const { region, severity, label } = state.niggleDraft || {};
+      if (!region || !severity) return; // require both — the form is invalid otherwise
+      return dispatch({
+        type: 'ADD_NIGGLE',
+        payload: { region, severity, label: label || '' },
+        date: todayISO(),
+        storage: localStorageOrNull(),
+      });
+    }
+    case 'clear-niggle': {
+      const id = t.dataset.niggleId;
+      if (!id) return;
+      return dispatch({
+        type: 'CLEAR_NIGGLE',
+        payload: id,
+        date: todayISO(),
+        storage: localStorageOrNull(),
+      });
+    }
+    case 'view-protocol': {
+      const protocolId = t.dataset.protocolId;
+      if (!protocolId) return;
+      return dispatch({ type: 'OPEN_REHAB', payload: protocolId });
+    }
+    case 'close-rehab':
+      return dispatch({ type: 'CLOSE_REHAB' });
+    case 'run-rehab': {
+      const protocolId = t.dataset.protocolId;
+      if (!protocolId) return;
+      return dispatch({
+        type: 'RUN_REHAB_STANDALONE',
+        payload: protocolId,
+        framework,
+        data,
+        date: todayISO(),
+        startedAt: Date.now(),
+      });
+    }
     default:
       return;
   }

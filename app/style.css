@@ -309,3 +309,92 @@ li.block.rehab .b-name { color: var(--accent); }
 }
 .saved { text-align: center; }
 .saved h1 { margin-top: 24px; }
+
+/* Niggles + rehab screens (issue #8) */
+.niggle-banner {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: rgba(217, 119, 66, 0.12);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 8px 0 12px;
+  font-weight: 600;
+  font-size: 14px;
+  min-height: 48px;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.niggles { text-align: left; }
+.niggles .s-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.niggles h1 { margin: 0; }
+.niggles h2 {
+  margin: 20px 0 8px;
+  font-size: 15px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.niggles ul.blocks {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 4px 14px;
+  margin: 8px 0;
+}
+.niggles .niggle-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.niggles .niggle-actions button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid #25252c;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.niggles input.niggle-label {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid #25252c;
+  border-radius: 8px;
+  color: var(--text);
+  padding: 12px;
+  font: inherit;
+  margin: 8px 0;
+  min-height: 48px;
+}
+.niggles .archived summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+}
+
+.rehab { text-align: left; }
+.rehab .s-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rehab h1 { margin: 0; font-size: 22px; }
+.rehab ul.blocks {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 4px 14px;
+  margin: 12px 0;
+}

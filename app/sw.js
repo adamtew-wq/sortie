@@ -2,7 +2,7 @@
 // clients flush stale assets on activate. Static shell = cache-first;
 // GitHub API = network-first so logged data stays fresh.
 
-const SHELL_CACHE = 'sortie-shell-v3';
+const SHELL_CACHE = 'sortie-shell-v4';
 const SHELL_ASSETS = [
   './',
   './index.html',
